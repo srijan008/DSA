@@ -1,0 +1,38 @@
+class Solution
+{
+    void solve(Node* root, int sum, int &ansSum, int length, int &longLength){
+        if(root->left == NULL && root->right == NULL){
+            sum = sum + root->data;
+            length = length + 1; 
+            if((length > longLength)){
+                ansSum = sum ;
+                longLength = length;
+                //cout<<"sum"<<ansSum<<" ";
+            }
+            if(length == longLength){
+                if(sum > ansSum){
+                    ansSum = sum ;
+                }
+            }
+            return ;
+        }
+        
+        sum = sum + root->data;
+        length = length + 1; 
+        if(root->left != NULL )  solve(root->left, sum, ansSum, length, longLength);
+        if(root->right != NULL)  solve(root->right, sum, ansSum, length, longLength);
+       
+        
+        
+    }
+public:
+    
+    int sumOfLongRootToLeafPath(Node *root)
+    {
+        int ansSum  = 0;
+        int l = 0;
+        solve(root,0,ansSum, 0, l);
+       // cout<<l<<"   ";
+        return ansSum;
+    }
+};
