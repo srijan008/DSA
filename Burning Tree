@@ -1,0 +1,80 @@
+class Solution {
+public:
+    Node* maping(Node* root, map<Node*, Node*>& parent, int target) {
+        parent[root] = NULL;
+        Node* res = NULL;
+        queue<Node*> q;
+        q.push(root);
+        
+        while (!q.empty()) {
+            Node* front = q.front();
+            q.pop();
+            
+            if (front->left) {
+                q.push(front->left);
+                parent[front->left] = front;
+            }
+            
+            if (front->right) {
+                q.push(front->right);
+                parent[front->right] = front;
+            }
+            
+            if (front->data == target) {
+                res = front;
+            }
+        }
+        
+        return res;
+    }
+
+    int burnTree(Node* root, map<Node*, Node*>& parent) {
+        map<Node*, bool> visited;
+        queue<Node*> q;
+        
+        q.push(root);
+        visited[root] = true;
+        
+        int ans = 0;
+
+        while (!q.empty()) {
+            bool flag = false;
+            int size = q.size();
+            
+            for (int i = 0; i < size; i++) {
+                Node* front = q.front();
+                q.pop();
+                
+                if (front->left && !visited[front->left]) {
+                    flag = true;
+                    q.push(front->left);
+                    visited[front->left] = true;
+                }
+                
+                if (front->right && !visited[front->right]) {
+                    flag = true;
+                    q.push(front->right);
+                    visited[front->right] = true;
+                }
+                
+                if (parent[front] && !visited[parent[front]]) {
+                    flag = true;
+                    q.push(parent[front]);
+                    visited[parent[front]] = true;
+                }
+            }
+            
+            if (flag) {
+                ans++;
+            }
+        }
+        
+        return ans;
+    }
+
+    int minTime(Node* root, int target) {
+        map<Node*, Node*> parent;
+        Node* targetNode = maping(root, parent, target);
+        return burnTree(targetNode, parent);
+    }
+};
