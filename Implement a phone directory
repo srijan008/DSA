@@ -1,0 +1,99 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class trieNode {
+public:
+    int data;
+    bool terminal;
+    trieNode* children[26];
+    int childCount;
+
+    trieNode(int data) {
+        this->data = data;
+        terminal = false;
+        childCount = 0;
+        for (int i = 0; i < 26; i++) {
+            children[i] = NULL;
+        }
+    }
+};
+
+class trie {
+public:
+    trieNode root;
+
+    trie(char ch) {
+        root = new trieNode(ch);
+    }
+
+    void insertUtil(trieNode* root, string word) {
+        if (word.length() == 0) {
+            root->terminal = true;
+            return;
+        }
+        int index = word[0] - 'a';
+        trieNode* child;
+        if (root->children[index] != NULL) {
+            child = root->children[index];
+        } else {
+            child = new trieNode(index);
+            root->children[index] = child;
+            root->childCount++;
+        }
+        insertUtil(child, word.substr(1));
+    }
+
+    void insertWord(string word) {
+        insertUtil(&root, word);
+    }
+
+    void printSuggestions(trieNode* curr, vector<string>& temp, string prefix) {
+        if (curr->terminal) {
+            temp.push_back(prefix);
+        }
+        for (char ch = 'a'; ch <= 'z'; ch++) {
+            trieNode* next = curr->children[ch - 'a'];
+            if (next != NULL) {
+                prefix.push_back(ch);
+                printSuggestions(next, temp, prefix);
+                prefix.pop_back();
+            }
+        }
+    }
+
+    vector<vector<string>> getSuggestions(string word) {
+        trieNode* prev = &root;
+        string prefix = "";
+        vector<vector<string>> output;
+
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word[i];
+            prefix.push_back(ch);
+
+            trieNode* curr = prev->children[ch - 'a'];
+            if (curr == NULL) {
+                break;
+            }
+
+            vector<string> temp;
+            printSuggestions(curr, temp, prefix);
+            output.push_back(temp);
+
+            prev = curr;
+        }
+
+        return output;
+    }
+};
+
+vector<vector<string>> phoneDirectory(vector<string>& contactList, string& queryStr) {
+    trie t('\0');
+
+    for (int i = 0; i < contactList.size(); i++) {
+        string str = contactList[i];
+        t.insertWord(str);
+    }
+
+    return t.getSuggestions(queryStr);
+}
